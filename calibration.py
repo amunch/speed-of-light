@@ -37,7 +37,7 @@ def find_gaussians():
     # Find Gaussians
     intervals = []
 
-    df = pd.read_csv('data/time.csv')
+    df = pd.read_csv('data/time_calibration.csv')
 
     gaussians = []
     prev = False
@@ -61,9 +61,9 @@ def find_gaussians():
         gaussian_means.append(stats[0])
         gaussian_stds.append(stats[1])
 
-    period = 0.32 # micro-seconds
+    period = 0.001 # micro-seconds
     times = []
-    for i in range(1,7): # there are 6 peaksom
+    for i in range(1,17): # there are 6 peaks
         times.append(period*i)
 
     return(times, gaussian_means, gaussian_stds)
@@ -77,9 +77,13 @@ def calibrate():
     ws = pd.DataFrame({
         'x': times,
         'y': gaussian_means,
-        'yerr': map(lambda x: x * 1000, gaussian_stds)
+        'yerr': map(lambda x: x*100, gaussian_stds)
     })
 
     wls_fit = sm.wls('x ~ y', data=ws, weights=1 / weights).fit()
 
-    return((wls_fit.params['y'], wls_fit.params['Intercept']),(wls_fit.bse['y'], wls_fit.bse['Intercept']))
+    return((wls_fit.params['y'], wls_fit.params['Intercept']),(wls_fit.bse['y'], wls_fit.bse['Intercept']), wls_fit, ws)
+
+def m_D():
+    params = calibrate()
+    return(params[0][0], params[1][0])
