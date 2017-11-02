@@ -61,7 +61,7 @@ def find_gaussians():
         gaussian_means.append(stats[0])
         gaussian_stds.append(stats[1])
 
-    period = 0.001 # micro-seconds
+    period = 1 # nano-seconds
     times = []
     for i in range(1,17): # there are 6 peaks
         times.append(period*i)
