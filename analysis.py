@@ -37,7 +37,8 @@ def find_gaussian(df, rng):
     stats = fit_gaussian(df[(rng[0] <= df['Channel']) & (df['Channel'] <= rng[1])])
     return stats
 
-def find_regressions(lengths, gaussian_means, gaussian_stds):
+def find_regression(lengths, gaussian_means, gaussian_stds):
+    print(lengths, gaussian_means, gaussian_stds)
 
     weights = 1/np.power(gaussian_stds, 2)
 
@@ -45,9 +46,15 @@ def find_regressions(lengths, gaussian_means, gaussian_stds):
     ws = pd.DataFrame({
         'x': lengths,
         'y': gaussian_means,
-        'yerr': map(lambda x: x * 1000, gaussian_stds)
+        'yerr': map(lambda x: x*1, gaussian_stds)
     })
 
     wls_fit = sm.wls('x ~ y', data=ws, weights=1 / weights).fit()
 
-    return((wls_fit.params['y'], wls_fit.params['Intercept']),(wls_fit.bse['y'], wls_fit.bse['Intercept']))
+    return((wls_fit.params['y'], wls_fit.params['Intercept']),(wls_fit.bse['y'], wls_fit.bse['Intercept']), wls_fit, ws)
+
+def m_S(lengths, gaussian_means, gaussian_stds):
+    params = find_regression(lengths, gaussian_means, gaussian_stds)
+    percent_error = params[1][0] / params[0][0]
+    inverse = 1/params[0][0]
+    return (inverse, inverse*percent_error)
