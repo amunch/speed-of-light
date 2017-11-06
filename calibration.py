@@ -86,4 +86,6 @@ def calibrate():
 
 def m_D():
     params = calibrate()
-    return(params[0][0], params[1][0])
+    percent_error = params[1][0]/params[0][0]
+    inverse = 1/params[0][0]
+    return(inverse, inverse*percent_error)
